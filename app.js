@@ -61,27 +61,3 @@ app.use((err, req, res, next) => {
 
 // Start the server
 startServer(app);
-
-// Graceful shutdown logic
-const gracefulShutdown = (signal) => {
-  console.log(`${signal} signal received: closing HTTP server`);
-  server.close(() => {
-    console.log("HTTP server closed");
-
-    // Close the database connection
-    mongoose.connection.close(false, () => {
-      console.log("MongoDB connection closed");
-      process.exit(0); // Exit process after all cleanups
-    });
-  });
-
-  // Set a timeout to forcefully shut down if cleanup takes too long (optional)
-  setTimeout(() => {
-    console.error("Forcefully shutting down");
-    process.exit(1);
-  }, 10000); // Force shutdown after 10 seconds
-};
-
-// Handle process termination signals
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-process.on("SIGINT", () => gracefulShutdown("SIGINT")); // Handle Ctrl+C (SIGINT)
