@@ -7,9 +7,15 @@ class AdminService {
     return Admin.findById(id);
   }
 
-  // Get admin by email
-  static getAdminByEmail(email) {
-    return Admin.findOne({ email });
+  // Get admin by email or username
+  static getAdminByEmailOrUsername(login) {
+    if (login.includes("@")) {
+      // If the login contains '@', treat it as an email
+      return Admin.findOne({ email: login });
+    } else {
+      // Otherwise, treat it as a username
+      return Admin.findOne({ username: login });
+    }
   }
 
   // Create a new admin
@@ -23,7 +29,7 @@ class AdminService {
       email,
       salt,
       password: hashedPassword,
-      role: role || "Moderator", // Default role is 'Moderator'
+      role: role || "Super Admin", // Default role is 'Super Admin'
     });
 
     return await newAdmin.save();
@@ -31,8 +37,10 @@ class AdminService {
 
   // Generate token for admin login
   static async getAdminToken(payload) {
-    const { email, password } = payload;
-    const admin = await AdminService.getAdminByEmail(email);
+    const { login, password } = payload;
+
+    // Check if login is an email or username
+    const admin = await AdminService.getAdminByEmailOrUsername(login);
 
     if (!admin) throw new Error("Admin not found");
 

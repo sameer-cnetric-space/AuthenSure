@@ -23,7 +23,7 @@ const adminSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["Super Admin", "Moderator", "Viewer"], // Define different roles
-      default: "Moderator", // Default role for new admins
+      default: "Super Admin", // Default role for new admins
     },
     permissions: {
       canManageUsers: { type: Boolean, default: false },
