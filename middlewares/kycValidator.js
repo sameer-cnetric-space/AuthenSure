@@ -10,7 +10,7 @@ const checkKycExists = async (req, res, next) => {
 
     if (!kyc) {
       return res.status(404).json({
-        message: "KYC ID not found",
+        message: "KYC Entry not found",
       });
     }
 

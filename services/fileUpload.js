@@ -29,17 +29,23 @@ const storage = multer.diskStorage({
   },
 });
 
-// Set file filter to accept only images (jpeg, png)
+// Set file filter to accept only images
 const fileFilter = (req, file, cb) => {
-  if (
-    file.mimetype === "image/jpeg" ||
-    file.mimetype === "image/png" ||
-    file.mimetype === "image/jpg"
-  ) {
+  const allowedMimeTypes = [
+    "image/jpeg", // JPEG
+    "image/png", // PNG
+    "image/jpg", // JPG
+    "image/webp", // WebP
+    "image/heic", // HEIC
+  ];
+
+  if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(
-      new Error("Unsupported file type, only JPEG,JPG and PNG are allowed!"),
+      new Error(
+        "Unsupported file type, only JPEG, JPG, PNG, WebP, and HEIC are allowed!"
+      ),
       false
     );
   }

@@ -17,7 +17,14 @@ const moderationSchema = new mongoose.Schema(
     ocrData: {
       type: Map, // Using a Map to store flexible key-value pairs for OCR data
       of: mongoose.Schema.Types.Mixed, // Allows mixed data types (string, number, etc.)
-      match: Boolean, // Validate the map keys
+    },
+    ocrMatch: {
+      type: Boolean, // Field to store whether OCR data matches KYC data
+      required: true,
+    },
+    ocrMismatchDetails: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
     },
     faceMatch: {
       match: Boolean,

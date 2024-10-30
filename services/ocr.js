@@ -4,7 +4,10 @@ const fs = require("fs");
 const { compareStrings } = require("../utils/stringComparison"); // Utility for string comparison
 
 // Import document-specific sanitizers
-const sanitizeAadharData = require("../utils/setDoc/setAadhar");
+const {
+  sanitizeAadharData,
+  sanitizeModKycData,
+} = require("../utils/setDoc/setAadhar");
 const sanitizePassportData = require("../utils/setDoc/setPassport");
 const sanitizePanCardData = require("../utils/setDoc/setPanCard");
 const sanitizeDrivingLicenseData = require("../utils/setDoc/setDrivingLicense");
@@ -65,23 +68,23 @@ const compareDocumentByType = (documentType, ocrData, kycData) => {
 
   // Select the appropriate sanitization function based on document type
   switch (documentType.toLowerCase()) {
-    case "aadhar":
+    case "aadhaar-card":
       sanitizedOcrData = sanitizeAadharData(ocrData);
-      sanitizedKycData = sanitizeAadharData(kycData);
+      sanitizedKycData = sanitizeModKycData(kycData);
       break;
     case "passport":
       sanitizedOcrData = sanitizePassportData(ocrData);
       sanitizedKycData = sanitizePassportData(kycData);
       break;
-    case "panCard":
+    case "pan-card":
       sanitizedOcrData = sanitizePanCardData(ocrData);
       sanitizedKycData = sanitizePanCardData(kycData);
       break;
-    case "drivingLicense":
+    case "dl":
       sanitizedOcrData = sanitizeDrivingLicenseData(ocrData);
       sanitizedKycData = sanitizeDrivingLicenseData(kycData);
       break;
-    case "voterId":
+    case "voter-id":
       sanitizedOcrData = sanitizeVoterIdData(ocrData);
       sanitizedKycData = sanitizeVoterIdData(kycData);
       break;
@@ -89,13 +92,39 @@ const compareDocumentByType = (documentType, ocrData, kycData) => {
       throw new Error(`Unsupported document type: ${documentType}`);
   }
 
-  // Compare each sanitized field from the OCR with the KYC form data
-  const matchFields = Object.keys(sanitizedOcrData).map((field) => {
-    return compareStrings(sanitizedOcrData[field], sanitizedKycData[field]);
+  // Store comparison results with the field names for debugging
+  const comparisonResults = Object.keys(sanitizedOcrData).map((field) => {
+    const isMatch = compareStrings(
+      sanitizedOcrData[field],
+      sanitizedKycData[field]
+    );
+    return {
+      field,
+      isMatch,
+      ocrValue: sanitizedOcrData[field],
+      kycValue: sanitizedKycData[field],
+    };
   });
 
-  // Return true if all fields match, false if any field doesn't match
-  return matchFields.every(Boolean);
+  // Create an object to store mismatch details
+  const mismatchResults = {};
+
+  // Log the comparison results and capture mismatches
+  comparisonResults.forEach(({ field, isMatch, ocrValue, kycValue }) => {
+    if (!isMatch) {
+      mismatchResults[field] = {
+        ocrValue,
+        kycValue,
+        reason: `Mismatch: OCR value (${ocrValue}) does not match KYC value (${kycValue})`,
+      };
+    }
+  });
+
+  // Return an object containing isMatch and mismatchResults
+  return {
+    isMatch: comparisonResults.every(({ isMatch }) => isMatch),
+    mismatchResults,
+  };
 };
 
 module.exports = { extractDataFromDocument, compareDocumentByType };

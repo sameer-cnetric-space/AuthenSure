@@ -1,5 +1,7 @@
 const Kyc = require("../models/kyc");
 const { buildFileUrl } = require("../utils/buildUrl");
+const ModerationService = require("../services/moderation");
+const path = require("path");
 
 class KycController {
   /**
@@ -114,6 +116,20 @@ class KycController {
       const selfieUrl = buildFileUrl(req, selfiePath);
       const documentUrl = buildFileUrl(req, documentPath);
 
+      // Get the absolute paths for the moderation service
+      const absSelfiePath = path.resolve(
+        __dirname,
+        `../public/kycAssets/${kycId}/selfie-${kycId}.${
+          req.files.selfie[0].mimetype.split("/")[1]
+        }`
+      );
+      const absDocumentPath = path.resolve(
+        __dirname,
+        `../public/kycAssets/${kycId}/doc-${kycId}.${
+          req.files.document[0].mimetype.split("/")[1]
+        }`
+      );
+
       // Update the KYC entry in the database with the file paths
       const kyc = await Kyc.findByIdAndUpdate(
         kycId,
@@ -134,6 +150,23 @@ class KycController {
         documentImage: documentUrl,
       };
 
+      const user = {
+        id: req.user._id,
+        name: `${req.user.firstName} ${req.user.lastName}`,
+        email: req.user.email,
+        gender: req.user.gender,
+      };
+      // Combine KYC data with authenticated user data
+      const wholeKyc = { ...kyc.toObject(), user };
+      //----------------------****************------------------------------------------//
+      // Trigger Moderation Service for Face Recognition and OCR asynchronously
+      ModerationService.runModerationChecks(
+        kycId,
+        absDocumentPath,
+        absSelfiePath,
+        wholeKyc
+      );
+      //----------------------****************------------------------------------------//
       return res.status(200).json({
         message: "KYC assets uploaded successfully",
         kyc: formattedRes,
