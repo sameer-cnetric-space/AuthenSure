@@ -1,11 +1,17 @@
 const mongoose = require("mongoose");
+const generateUUID = require("../utils/idGenerator");
 
 // Define Moderation schema
 const moderationSchema = new mongoose.Schema(
   {
+    _id: {
+      type: String,
+      default: function () {
+        return generateUUID("mod-");
+      },
+    },
     kycId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "KYC", // Reference to the KYC model
+      type: String, // Reference to the KYC model
       required: true,
     },
     ocrData: {

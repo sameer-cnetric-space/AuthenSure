@@ -9,6 +9,6 @@ const kycRoutes = require("./kyc"); // Kyc routes
 // Use the routes
 router.use("/users", userRoutes);
 router.use("/admins", adminRoutes);
-// router.use("/kyc", kycRoutes);
+router.use("/kyc", kycRoutes);
 
 module.exports = router;

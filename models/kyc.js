@@ -1,11 +1,16 @@
 const mongoose = require("mongoose");
-
+const generateUUID = require("../utils/idGenerator");
 // Define KYC schema
 const kycSchema = new mongoose.Schema(
   {
+    _id: {
+      type: String,
+      default: function () {
+        return generateUUID("kyc-");
+      },
+    },
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // This references the User model
+      type: String, // This references the User model
       required: true,
     },
     nationality: {
@@ -64,11 +69,9 @@ const kycSchema = new mongoose.Schema(
     },
     documentImage: {
       type: String, // Store the image URL or file path here
-      required: true,
     },
     selfieImage: {
       type: String, // Store the image URL or file path here
-      required: true,
     },
     kycStatus: {
       type: String,

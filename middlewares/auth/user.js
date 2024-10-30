@@ -27,9 +27,7 @@ const userAuth = async (req, res, next) => {
     req.user = user;
     next(); // Proceed to the next middleware/route handler
   } catch (err) {
-    return res
-      .status(401)
-      .json({ message: "Token is not valid", error: err.message });
+    return res.status(401).json({ message: "Token is not valid" });
   }
 };
 

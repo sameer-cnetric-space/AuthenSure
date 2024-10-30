@@ -1,7 +1,13 @@
 const mongoose = require("mongoose");
-
+const generateUUID = require("../utils/idGenerator");
 const userSchema = new mongoose.Schema(
   {
+    _id: {
+      type: String,
+      default: function () {
+        return generateUUID("usr-");
+      },
+    },
     firstName: {
       type: String,
       required: true,

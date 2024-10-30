@@ -7,6 +7,7 @@ const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 const routes = require("./routes");
 const startServer = require("./server");
+const path = require("path");
 
 const app = express();
 
@@ -20,7 +21,7 @@ app.use(cors());
 app.use(compression());
 
 //Serving  static files
-app.use(express.static("public"));
+app.use("/public", express.static(path.join(__dirname, "public")));
 
 // Rate limiting to prevent too many requests
 const limiter = rateLimit({
