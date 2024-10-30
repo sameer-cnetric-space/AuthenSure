@@ -1,14 +1,28 @@
-// Function to sanitize Passport OCR data and KYC data for comparison
+const { formatDate } = require("../dateFormatter");
+
+// Passport OCR sanitization
 const sanitizePassportData = (ocrData) => {
-  return {
+  const modOcrData = {
     documentNumber: ocrData.documentNumber.trim(), // Passport number
-    name: ocrData.name.replace(/\^/g, "").trim(), // Remove special characters like '^'
-    dateOfBirth: ocrData.dateOfBirth.trim(), // DOB
-    dateOfExpiry: ocrData.dateOfExpiry.trim(), // Expiry date
-    placeOfBirth: ocrData.placeOfBirth.trim(), // Place of birth
-    sex: ocrData.sex.trim(), // Gender
-    nationality: ocrData.nationality.trim(), // Nationality
+    name: ocrData.givenNames.replace(/\^/g, "").trim(), // Remove special characters like '^'
+    dateOfBirth: ocrData.dateOfBirth, // DOB
+    dateOfIssue: ocrData.dateOfIssue, // Passport issue date
+    dateOfExpiry: ocrData.dateOfExpiry, // Passport expiry date
   };
+  return modOcrData;
 };
 
-module.exports = sanitizePassportData;
+// Passport KYC sanitization
+const sanitizeModKycDataPassport = (kycData) => {
+  const modKycData = {
+    documentNumber: kycData.idNumber.trim(), // Passport number
+    name: kycData.user.name.replace(/\^/g, "").trim(), // Remove special characters like '^'
+    dateOfBirth: formatDate(kycData.dob), // DOB
+    dateOfIssue: formatDate(kycData.idIssueDate), // Passport issue date
+    dateOfExpiry: formatDate(kycData.idExpiryDate), // Passport expiry date
+  };
+
+  return modKycData;
+};
+
+module.exports = { sanitizePassportData, sanitizeModKycDataPassport };

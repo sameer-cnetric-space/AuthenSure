@@ -1,12 +1,23 @@
-// Function to sanitize PAN Card OCR data and KYC data for comparison
+const { formatDate } = require("../dateFormatter");
+
+// PAN Card OCR sanitization
 const sanitizePanCardData = (ocrData) => {
-  return {
+  const modOcrData = {
     documentNumber: ocrData.documentNumber.trim(), // PAN number
-    name: ocrData.name.trim(), // Name
-    dateOfBirth: ocrData.dateOfBirth.trim(), // DOB
-    fathersName: ocrData.fathersName.trim(), // Father's name
-    issuingStateCode: ocrData.issuingStateCode.trim(), // State code
+    name: ocrData.name.replace(/\^/g, "").trim(), // Remove special characters like '^'
+    dateOfBirth: ocrData.dateOfBirth, // DOB
   };
+  return modOcrData;
 };
 
-module.exports = sanitizePanCardData;
+// PAN Card KYC sanitization
+const sanitizeModKycDataPanCard = (kycData) => {
+  const modKycData = {
+    documentNumber: kycData.idNumber.trim(), // PAN number
+    name: kycData.user.name.replace(/\^/g, "").trim(), // Remove special characters like '^'
+    dateOfBirth: formatDate(kycData.dob), // DOB
+  };
+  return modKycData;
+};
+
+module.exports = { sanitizePanCardData, sanitizeModKycDataPanCard };

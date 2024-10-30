@@ -6,12 +6,24 @@ const { compareStrings } = require("../utils/stringComparison"); // Utility for 
 // Import document-specific sanitizers
 const {
   sanitizeAadharData,
-  sanitizeModKycData,
+  sanitizeModKycDataAadhar,
 } = require("../utils/setDoc/setAadhar");
-const sanitizePassportData = require("../utils/setDoc/setPassport");
-const sanitizePanCardData = require("../utils/setDoc/setPanCard");
-const sanitizeDrivingLicenseData = require("../utils/setDoc/setDrivingLicense");
-const sanitizeVoterIdData = require("../utils/setDoc/setVoterId");
+const {
+  sanitizePassportData,
+  sanitizeModKycDataPassport,
+} = require("../utils/setDoc/setPassport");
+const {
+  sanitizePanCardData,
+  sanitizeModKycDataPanCard,
+} = require("../utils/setDoc/setPanCard");
+const {
+  sanitizeDrivingLicenseData,
+  sanitizeModKycDataDrivingLicense,
+} = require("../utils/setDoc/setDrivingLicense");
+const {
+  sanitizeVoterIdData,
+  sanitizeModKycDataVoterId,
+} = require("../utils/setDoc/setVoterId");
 
 // Parse the OCR environment variable
 const ocrEnv = JSON.parse(process.env.OCR);
@@ -70,23 +82,23 @@ const compareDocumentByType = (documentType, ocrData, kycData) => {
   switch (documentType.toLowerCase()) {
     case "aadhaar-card":
       sanitizedOcrData = sanitizeAadharData(ocrData);
-      sanitizedKycData = sanitizeModKycData(kycData);
+      sanitizedKycData = sanitizeModKycDataAadhar(kycData);
       break;
     case "passport":
       sanitizedOcrData = sanitizePassportData(ocrData);
-      sanitizedKycData = sanitizePassportData(kycData);
+      sanitizedKycData = sanitizeModKycDataPassport(kycData);
       break;
     case "pan-card":
       sanitizedOcrData = sanitizePanCardData(ocrData);
-      sanitizedKycData = sanitizePanCardData(kycData);
+      sanitizedKycData = sanitizeModKycDataPanCard(kycData);
       break;
     case "dl":
       sanitizedOcrData = sanitizeDrivingLicenseData(ocrData);
-      sanitizedKycData = sanitizeDrivingLicenseData(kycData);
+      sanitizedKycData = sanitizeModKycDataDrivingLicense(kycData);
       break;
     case "voter-id":
       sanitizedOcrData = sanitizeVoterIdData(ocrData);
-      sanitizedKycData = sanitizeVoterIdData(kycData);
+      sanitizedKycData = sanitizeModKycDataVoterId(kycData);
       break;
     default:
       throw new Error(`Unsupported document type: ${documentType}`);
@@ -117,6 +129,9 @@ const compareDocumentByType = (documentType, ocrData, kycData) => {
         kycValue,
         reason: `Mismatch: OCR value (${ocrValue}) does not match KYC value (${kycValue})`,
       };
+      console.log(
+        `Mismatch: OCR value (${ocrValue}) does not match KYC value (${kycValue})`
+      );
     }
   });
 

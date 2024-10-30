@@ -1,7 +1,8 @@
 const Kyc = require("../models/kyc");
 const { buildFileUrl } = require("../utils/buildUrl");
 const ModerationService = require("../services/moderation");
-const path = require("path");
+const fs = require("fs");
+const { saveKycAssets } = require("../services/fileUpload");
 
 class KycController {
   /**
@@ -104,38 +105,27 @@ class KycController {
         });
       }
 
-      // Get the paths for the uploaded files
-      const selfiePath = `/public/kycAssets/${kycId}/selfie-${kycId}.${
-        req.files.selfie[0].mimetype.split("/")[1]
-      }`;
-      const documentPath = `/public/kycAssets/${kycId}/doc-${kycId}.${
-        req.files.document[0].mimetype.split("/")[1]
-      }`;
+      // Save KYC assets (selfie and document) using the utility
+      const { selfie, document } = await saveKycAssets(req);
+
+      // Ensure the files exist after saving
+      if (!fs.existsSync(selfie.absolutePath)) {
+        throw new Error(`Selfie file not found at ${selfie.absolutePath}`);
+      }
+      if (!fs.existsSync(document.absolutePath)) {
+        throw new Error(`Document file not found at ${document.absolutePath}`);
+      }
 
       // Build full URLs for selfie and document paths
-      const selfieUrl = buildFileUrl(req, selfiePath);
-      const documentUrl = buildFileUrl(req, documentPath);
-
-      // Get the absolute paths for the moderation service
-      const absSelfiePath = path.resolve(
-        __dirname,
-        `../public/kycAssets/${kycId}/selfie-${kycId}.${
-          req.files.selfie[0].mimetype.split("/")[1]
-        }`
-      );
-      const absDocumentPath = path.resolve(
-        __dirname,
-        `../public/kycAssets/${kycId}/doc-${kycId}.${
-          req.files.document[0].mimetype.split("/")[1]
-        }`
-      );
+      const selfieUrl = buildFileUrl(req, selfie.relativePath);
+      const documentUrl = buildFileUrl(req, document.relativePath);
 
       // Update the KYC entry in the database with the file paths
       const kyc = await Kyc.findByIdAndUpdate(
         kycId,
         {
-          selfieImage: selfiePath,
-          documentImage: documentPath,
+          selfieImage: selfie.relativePath,
+          documentImage: document.relativePath,
         },
         { new: true }
       );
@@ -156,17 +146,20 @@ class KycController {
         email: req.user.email,
         gender: req.user.gender,
       };
+
       // Combine KYC data with authenticated user data
       const wholeKyc = { ...kyc.toObject(), user };
+
       //----------------------****************------------------------------------------//
       // Trigger Moderation Service for Face Recognition and OCR asynchronously
       ModerationService.runModerationChecks(
         kycId,
-        absDocumentPath,
-        absSelfiePath,
+        document.absolutePath,
+        selfie.absolutePath,
         wholeKyc
       );
       //----------------------****************------------------------------------------//
+
       return res.status(200).json({
         message: "KYC assets uploaded successfully",
         kyc: formattedRes,
