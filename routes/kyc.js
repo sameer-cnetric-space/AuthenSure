@@ -5,6 +5,9 @@ const { kycSchema } = require("../validations/kyc");
 const { upload } = require("../services/fileUpload");
 const userAuth = require("../middlewares/auth/user");
 const {
+  checkImageQualityMiddleware,
+} = require("../middlewares/imageQualityCheck");
+const {
   checkExistingModeration,
 } = require("../middlewares/moderationValidator");
 
@@ -27,6 +30,7 @@ router.post(
 router.post(
   "/:kycId/upload",
   userAuth,
+  checkImageQualityMiddleware,
   checkKycExists,
   checkExistingModeration,
   upload.fields([
