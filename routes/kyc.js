@@ -3,18 +3,32 @@ const KycController = require("../controllers/kyc");
 const validate = require("../middlewares/validate");
 const { kycSchema } = require("../validations/kyc");
 const { upload } = require("../services/fileUpload");
-const userAuth = require("../middlewares/auth/user"); // Import the userAuth middleware
-const checkKycExists = require("../middlewares/kycValidator");
+const userAuth = require("../middlewares/auth/user");
+const {
+  checkExistingModeration,
+} = require("../middlewares/moderationValidator");
+
+const {
+  checkKycExists,
+  checkKycStatus,
+} = require("../middlewares/kycValidator");
 const router = express.Router();
 
 // Create a new KYC entry (User must be authenticated)
-router.post("/", userAuth, validate(kycSchema), KycController.createKyc);
+router.post(
+  "/",
+  userAuth,
+  validate(kycSchema),
+  checkKycStatus,
+  KycController.createKyc
+);
 
 // KYC submission (with Joi validation and Multer for file upload) (User must be authenticated)
 router.post(
   "/:kycId/upload",
   userAuth,
   checkKycExists,
+  checkExistingModeration,
   upload.fields([
     { name: "selfie", maxCount: 1 },
     { name: "document", maxCount: 1 },
