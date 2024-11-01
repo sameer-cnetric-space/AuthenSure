@@ -106,7 +106,7 @@ Universal-KYC is a scalable, feature-rich KYC application designed for secure an
 
 ## Environment Variables
 
-- Configure environment variables in `.env` file as needed.
+- Configure environment variables in `.env` file as needed. Refer `example.env` file for env sturcture.
 
 ## Usage
 
