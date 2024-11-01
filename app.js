@@ -23,18 +23,6 @@ app.use(compression());
 //Serving  static files
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-// Rate limiting to prevent too many requests
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  handler: (req, res) => {
-    res
-      .status(429)
-      .send({ message: "Too many requests, please try again later." });
-  },
-});
-app.use(limiter);
-
 // HTTP request logger
 app.use(morgan("dev"));
 

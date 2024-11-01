@@ -17,22 +17,34 @@ const {
   checkKycStatus,
 } = require("../middlewares/kycValidator");
 const router = express.Router();
+const { userRateLimiter, adminRateLimiter } = require("../utils/rateLimiter");
 
 //Get all KYC Entries (For Admins)
-router.get("/", adminAuth, KycController.getAllKycEntries);
+router.get("/", adminRateLimiter, adminAuth, KycController.getAllKycEntries);
 
 //Get all KYC Entries (For Users)
-router.get("/history", userAuth, KycController.getUserKycEntries);
+router.get(
+  "/history",
+  userRateLimiter,
+  userAuth,
+  KycController.getUserKycEntries
+);
 
 // Get KYC details by ID (For Admins)
-router.get("/:id/admin", adminAuth, KycController.getKycWithModeration);
+router.get(
+  "/:id/admin",
+  adminRateLimiter,
+  adminAuth,
+  KycController.getKycWithModeration
+);
 
 // Get KYC details by ID (User must be authenticated)
-router.get("/:id", userAuth, KycController.getKycById);
+router.get("/:id", userRateLimiter, userAuth, KycController.getKycById);
 
 // Create a new KYC entry (User must be authenticated)
 router.post(
   "/",
+  userRateLimiter,
   userAuth,
   validate(kycSchema),
   checkKycStatus,
@@ -42,6 +54,7 @@ router.post(
 // KYC submission (with Joi validation and Multer for file upload) (User must be authenticated)
 router.post(
   "/:kycId/upload",
+  userRateLimiter,
   userAuth,
   checkImageQualityMiddleware,
   checkKycExists,
