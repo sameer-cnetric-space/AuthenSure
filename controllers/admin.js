@@ -1,4 +1,5 @@
 const AdminService = require("../services/admin");
+const MetricService = require("../services/metrics");
 
 class AdminController {
   /**
@@ -79,6 +80,25 @@ class AdminController {
       return res
         .status(500)
         .json({ message: "Error fetching admin data", error: error.message });
+    }
+  }
+
+  /**
+   * Controller function to handle metric data for admin dashboard
+   */
+  static async getMetrics(req, res) {
+    try {
+      const metrics = await MetricService.getMetrics();
+
+      return res.status(200).json({
+        data: metrics,
+      });
+    } catch (error) {
+      console.error("Error fetching metrics:", error);
+      return res.status(500).json({
+        message: "Error fetching metrics",
+        error: error.message,
+      });
     }
   }
 }

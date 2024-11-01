@@ -240,7 +240,6 @@ class KycController {
 
       return res.status(200).json({
         message: `KYC status updated to ${kycStatus}`,
-        kyc,
       });
     } catch (error) {
       console.error("Error updating KYC status:", error);
