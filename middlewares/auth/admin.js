@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../../models/admin"); // Assuming the Admin model is here
 const JWTsecret = process.env.JWT_SECRET;
 
+// Middleware to authorize any authenticated admin
 const adminAuth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -20,13 +21,12 @@ const adminAuth = async (req, res, next) => {
     // Find the admin by decoded ID
     const admin = await Admin.findById(decoded.id);
     if (!admin) {
-      return res
-        .status(401)
-        .json({ message: "Invalid token: admin not found" });
+      return res.status(403).json({ message: "Forbidden: Admin not found" });
     }
 
     // Attach admin to request object
     req.admin = admin;
+
     next(); // Proceed to the next middleware/route handler
   } catch (err) {
     return res
@@ -35,4 +35,4 @@ const adminAuth = async (req, res, next) => {
   }
 };
 
-module.exports = adminAuth;
+module.exports = { adminAuth };

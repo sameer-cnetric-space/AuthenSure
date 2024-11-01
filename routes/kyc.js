@@ -4,6 +4,7 @@ const validate = require("../middlewares/validate");
 const { kycSchema } = require("../validations/kyc");
 const { upload } = require("../services/fileUpload");
 const userAuth = require("../middlewares/auth/user");
+const { adminAuth } = require("../middlewares/auth/admin");
 const {
   checkImageQualityMiddleware,
 } = require("../middlewares/imageQualityCheck");
@@ -16,6 +17,18 @@ const {
   checkKycStatus,
 } = require("../middlewares/kycValidator");
 const router = express.Router();
+
+//Get all KYC Entries (For Admins)
+router.get("/", adminAuth, KycController.getAllKycEntries);
+
+//Get all KYC Entries (For Users)
+router.get("/history", userAuth, KycController.getUserKycEntries);
+
+// Get KYC details by ID (For Admins)
+router.get("/:id/admin", adminAuth, KycController.getKycWithModeration);
+
+// Get KYC details by ID (User must be authenticated)
+router.get("/:id", userAuth, KycController.getKycById);
 
 // Create a new KYC entry (User must be authenticated)
 router.post(
@@ -40,10 +53,7 @@ router.post(
   KycController.uploadKycAssets
 );
 
-// Get KYC details by ID (User must be authenticated)
-router.get("/:id", userAuth, KycController.getKycById);
-
-// Update KYC status (User must be authenticated)
-router.put("/:id/status", userAuth, KycController.updateKycStatus);
+// Update KYC status (For Admins)
+router.put("/:id/status", adminAuth, KycController.updateKycStatus);
 
 module.exports = router;

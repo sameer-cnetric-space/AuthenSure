@@ -1,4 +1,5 @@
 const Kyc = require("../models/kyc");
+const KycService = require("../services/kyc");
 const { buildFileUrl } = require("../utils/buildUrl");
 const ModerationService = require("../services/moderation");
 const fs = require("fs");
@@ -174,30 +175,50 @@ class KycController {
   }
 
   /**
+   * Get all KYC entries with specific fields
+   */
+  static async getAllKycEntries(req, res) {
+    try {
+      const { formattedKycs, pagination } = await KycService.getAllKycEntries(
+        req,
+        res
+      );
+      return res.status(200).json({
+        kycs: formattedKycs,
+        pagination: pagination,
+      });
+    } catch (error) {
+      console.error("Error fetching KYC entries:", error);
+      return res.status(500).json({
+        message: "Error fetching KYC entries",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
    * Fetch KYC details by KYC ID
    */
   static async getKycById(req, res) {
     try {
-      const kycId = req.params.id;
-      const kyc = await Kyc.findById(kycId);
+      const { id: kycId } = req.params;
 
-      if (!kyc) {
-        return res.status(404).json({ message: "KYC not found" });
+      // Fetch the KYC entry data without moderation
+      const kycData = await KycService.getKycById(kycId, req);
+
+      if (!kycData) {
+        return res.status(404).json({
+          message: "KYC entry not found",
+        });
       }
 
-      // Build full URLs for selfie and document paths
-      const selfieUrl = buildFileUrl(req, kyc.selfieImage);
-      const documentUrl = buildFileUrl(req, kyc.documentImage);
-
       return res.status(200).json({
-        ...kyc.toObject(),
-        selfieImage: selfieUrl,
-        documentImage: documentUrl,
+        kyc: kycData,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching KYC entry:", error);
       return res.status(500).json({
-        message: "Error fetching KYC data",
+        message: "Error fetching KYC entry",
         error: error.message,
       });
     }
@@ -211,19 +232,7 @@ class KycController {
       const { kycStatus } = req.body;
       const kycId = req.params.id;
 
-      // Ensure valid status is provided
-      if (!["Pending", "Verified", "Rejected"].includes(kycStatus)) {
-        return res.status(400).json({
-          message: "Invalid KYC status provided",
-        });
-      }
-
-      // Update the KYC status
-      const kyc = await Kyc.findByIdAndUpdate(
-        kycId,
-        { kycStatus },
-        { new: true }
-      );
+      const kyc = await KycService.updateKycStatus(kycId, kycStatus);
 
       if (!kyc) {
         return res.status(404).json({ message: "KYC not found" });
@@ -234,9 +243,47 @@ class KycController {
         kyc,
       });
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({
+      console.error("Error updating KYC status:", error);
+      const status = error.message.includes("Invalid KYC status") ? 400 : 500;
+      return res.status(status).json({
         message: "Error updating KYC status",
+        error: error.message,
+      });
+    }
+  }
+
+  // Fetch KYC entries for a specific user with pagination
+  static async getUserKycEntries(req, res) {
+    try {
+      // Pass user ID and request object to the service
+      const userId = req.user._id; // Assume userAuth middleware sets req.user
+      const data = await KycService.getUserKycEntries(userId, req);
+
+      return res.status(200).json({
+        ...data,
+      });
+    } catch (error) {
+      console.error("Error in getUserKycEntries controller:", error);
+      return res.status(500).json({
+        message: "Error fetching KYC entries for user",
+        error: error.message,
+      });
+    }
+  }
+
+  // Fetch a single KYC entry with moderation details (for Admins)
+  static async getKycWithModeration(req, res) {
+    try {
+      const kycId = req.params.id;
+      const data = await KycService.getKycWithModeration(kycId, req);
+
+      return res.status(200).json({
+        kyc: data,
+      });
+    } catch (error) {
+      console.error("Error in getKycWithModeration controller:", error);
+      return res.status(500).json({
+        message: "Error fetching KYC entry with moderation",
         error: error.message,
       });
     }

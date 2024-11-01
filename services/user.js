@@ -45,8 +45,9 @@ class UserService {
 
     const isValidPassword = AuthService.validatePassword(password, user);
     if (!isValidPassword) throw new Error("Invalid credentials");
+    const tokenExpiry = process.env.JWT_EXPIRES_IN_USER || "1h";
 
-    return AuthService.generateToken(user);
+    return AuthService.generateToken(user, tokenExpiry);
   }
 }
 

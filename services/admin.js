@@ -46,8 +46,9 @@ class AdminService {
 
     const isValidPassword = AuthService.validatePassword(password, admin);
     if (!isValidPassword) throw new Error("Invalid credentials");
+    const tokenExpiry = process.env.JWT_EXPIRES_IN_ADMIN || "2h";
 
-    return AuthService.generateToken(admin);
+    return AuthService.generateToken(admin, tokenExpiry);
   }
 }
 

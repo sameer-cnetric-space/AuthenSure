@@ -14,9 +14,9 @@ class AuthService {
   }
 
   // Generate JWT token
-  static generateToken(user) {
+  static generateToken(user, expiryTime) {
     return jwt.sign({ id: user._id, email: user.email }, JWTsecret, {
-      expiresIn: "1h",
+      expiresIn: expiryTime,
     });
   }
 
