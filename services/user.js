@@ -19,7 +19,8 @@ class UserService {
 
   // Create a new user
   static async createUser(payload) {
-    const { firstName, lastName, email, password, gender, username } = payload;
+    const { firstName, lastName, email, password, gender, username, phone } =
+      payload;
     const salt = AuthService.generateSalt();
     const hashedPassword = AuthService.generateHash(salt, password);
 
@@ -31,6 +32,7 @@ class UserService {
       password: hashedPassword,
       gender,
       username,
+      phone,
     });
 
     return await newUser.save();

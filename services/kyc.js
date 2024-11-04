@@ -110,7 +110,7 @@ class KycService {
       const kyc = await Kyc.findById(kycId).populate({
         path: "userId",
         model: "User", // Explicitly reference the UUID-based User model
-        select: "firstName lastName email",
+        select: "firstName lastName email phone",
         match: { _id: { $exists: true } }, // Populate only valid UUID references
       });
 
@@ -148,6 +148,7 @@ class KycService {
           kyc.userId?.lastName || ""
         }`.trim(),
         email: kyc.userId?.email || "N/A",
+        phone: kyc.userId?.phone || "N/A",
         selfieImage: buildFileUrl(req, kyc.selfieImage),
         documentImage: buildFileUrl(req, kyc.documentImage),
         kycStatus: kyc.kycStatus,

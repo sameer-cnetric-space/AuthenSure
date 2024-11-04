@@ -8,6 +8,7 @@ const registrationSchema = Joi.object({
   password: Joi.string().min(6).required(),
   gender: Joi.string().valid("male", "female", "other").required(),
   username: Joi.string().alphanum().min(3).required(),
+  phone: Joi.string().required(),
 });
 
 // Validation schema for user login

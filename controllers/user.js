@@ -8,7 +8,7 @@ class UserController {
    */
   static async register(req, res) {
     try {
-      const { firstName, lastName, email, password, gender, username } =
+      const { firstName, lastName, email, password, gender, username, phone } =
         req.body;
 
       // Call the createUser function from UserService to create a new user
@@ -19,6 +19,7 @@ class UserController {
         password,
         gender,
         username,
+        phone,
       });
 
       const formattedRes = {
@@ -28,6 +29,7 @@ class UserController {
         email: newUser.email,
         username: newUser.username,
         gender: newUser.gender,
+        phone: newUser.phone,
         createdAt: newUser.createdAt,
       };
 
