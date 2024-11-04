@@ -22,20 +22,11 @@ class UserController {
         phone,
       });
 
-      const formattedRes = {
-        id: newUser._id,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        email: newUser.email,
-        username: newUser.username,
-        gender: newUser.gender,
-        phone: newUser.phone,
-        createdAt: newUser.createdAt,
-      };
-
-      return res
-        .status(201)
-        .json({ message: "User created successfully", user: formattedRes });
+      return res.status(201).json({
+        message: "User created successfully",
+        token: newUser.token,
+        user: newUser.formattedRes,
+      });
     } catch (error) {
       if (error.code === 11000) {
         // Handle duplicate email or username error

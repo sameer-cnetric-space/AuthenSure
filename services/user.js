@@ -35,7 +35,23 @@ class UserService {
       phone,
     });
 
-    return await newUser.save();
+    const newUesr = await newUser.save();
+    // Generate token for immediate login after registration
+    const tokenExpiry = process.env.JWT_EXPIRES_IN_USER || "1h";
+    const token = AuthService.generateToken(newUser, tokenExpiry);
+
+    const formattedRes = {
+      id: newUser._id,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      email: newUser.email,
+      username: newUser.username,
+      gender: newUser.gender,
+      phone: newUser.phone,
+      createdAt: newUser.createdAt,
+    };
+
+    return { formattedRes, token };
   }
 
   // Generate token for user login (can use either email or username)
