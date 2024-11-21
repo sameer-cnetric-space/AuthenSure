@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3005
 
 # Run the app by default
-CMD ["node", "app.js"]
+CMD ["npm", "start"]
