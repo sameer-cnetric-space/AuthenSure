@@ -25,4 +25,6 @@ router.post("/login", validate(adminLoginSchema), AdminController.login);
 // Get admin by ID
 router.get("/:id", adminAuth, AdminController.getAdminById);
 
+//Delete User and its all data including assets
+
 module.exports = router;

@@ -229,6 +229,29 @@ class KycService {
       throw new Error("Could not fetch KYC data");
     }
   }
+
+  // Get KYC Stats for User
+  static async getUserKycStats(userId) {
+    try {
+      // Fetch KYC entries for the user with only relevant fields
+      const kycs = await Kyc.find(
+        { userId },
+        "_id selfieImage documentImage" // Select only required fields
+      );
+
+      if (!kycs) throw new Error("No KYC Entries Found");
+
+      // Map the KYC data to the desired format
+      const formattedKycs = kycs.map((kyc) => ({
+        kycId: kyc._id,
+        avlAssets: !!(kyc.selfieImage && kyc.documentImage), // Check if both assets are available
+      }));
+
+      return formattedKycs;
+    } catch (error) {
+      throw new Error("Error fetching KYC stats for user: " + error.message);
+    }
+  }
 }
 
 module.exports = KycService;

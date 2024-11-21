@@ -69,4 +69,6 @@ router.post(
 // Update KYC status (For Admins)
 router.put("/:id/status", adminAuth, KycController.updateKycStatus);
 
+//Delete the KYC entry and its assets (For Admins)
+
 module.exports = router;

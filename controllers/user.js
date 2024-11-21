@@ -1,5 +1,7 @@
 const UserService = require("../services/user"); // Import the UserService
 
+const KycService = require("../services/kyc");
+
 class UserController {
   /**
    * Register a new user
@@ -67,22 +69,38 @@ class UserController {
   }
 
   /**
-   * Get a user by their ID
-   * @param {Object} req - The request object containing the user ID
+   * Get the logged-in user's details
+   * @param {Object} req - The request object containing the user token
    * @param {Object} res - The response object to send the result
    */
-  static async getUserById(req, res) {
+  static async getUserMe(req, res) {
     try {
-      const { id } = req.params;
+      // Retrieve the user ID from the authenticated request object
+      const userId = req.user._id;
 
       // Call the getUserById function from UserService to get user details
-      const user = await UserService.getUserById(id);
+      const user = await UserService.getUserById(userId);
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      return res.status(200).json(user);
+      const kycStats = await KycService.getUserKycStats(userId);
+
+      // Format the response to exclude sensitive fields like password and salt
+      const formattedUser = {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        username: user.username,
+        gender: user.gender,
+        phone: user.phone,
+        createdAt: user.createdAt,
+        kycs: kycStats,
+      };
+
+      return res.status(200).json(formattedUser);
     } catch (error) {
       return res
         .status(500)
