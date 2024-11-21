@@ -1,4 +1,5 @@
 const Kyc = require("../models/kyc"); // Assuming Kyc is your KYC model
+const { buildFileUrl } = require("../utils/buildUrl");
 
 const checkKycExists = async (req, res, next) => {
   try {
@@ -52,4 +53,48 @@ const checkKycStatus = async (req, res, next) => {
   }
 };
 
-module.exports = { checkKycExists, checkKycStatus };
+/**
+ * Middleware to check if the KYC entry already has assets
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @param {Function} next - The next middleware function
+ */
+const checkKycAssets = async (req, res, next) => {
+  try {
+    const { kycId } = req.params;
+
+    // Validate KYC ID
+    if (!kycId) {
+      return res.status(400).json({ message: "KYC ID is required." });
+    }
+
+    // Fetch KYC entry by ID
+    const kyc = await Kyc.findById(kycId);
+
+    if (!kyc) {
+      return res.status(404).json({ message: "KYC entry not found." });
+    }
+
+    // Check if assets are already uploaded
+    if (kyc.selfieImage || kyc.documentImage) {
+      return res.status(400).json({
+        message: "Assets already exist for this KYC entry.",
+        assets: {
+          selfieImage: buildFileUrl(kyc.selfieImage) || null,
+          documentImage: buildFileUrl(kyc.documentImage) || null,
+        },
+      });
+    }
+
+    // Proceed to the next middleware
+    next();
+  } catch (error) {
+    console.error("Error checking KYC assets:", error.message);
+    res.status(500).json({
+      message: "Error checking KYC assets.",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { checkKycExists, checkKycStatus, checkKycAssets };

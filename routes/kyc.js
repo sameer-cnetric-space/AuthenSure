@@ -15,6 +15,7 @@ const {
 const {
   checkKycExists,
   checkKycStatus,
+  checkKycAssets,
 } = require("../middlewares/kycValidator");
 const router = express.Router();
 const { userRateLimiter, adminRateLimiter } = require("../utils/rateLimiter");
@@ -56,13 +57,14 @@ router.post(
   "/:kycId/upload",
   userRateLimiter,
   userAuth,
-  checkImageQualityMiddleware,
-  checkKycExists,
-  checkExistingModeration,
+  checkKycAssets,
   upload.fields([
     { name: "selfie", maxCount: 1 },
     { name: "document", maxCount: 1 },
   ]),
+  checkImageQualityMiddleware,
+  checkKycExists,
+  checkExistingModeration,
   KycController.uploadKycAssets
 );
 

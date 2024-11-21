@@ -8,24 +8,44 @@ const { checkImageQuality } = require("../services/imageQuality");
  */
 const checkImageQualityMiddleware = async (req, res, next) => {
   try {
-    const { selfiePath, documentPath } = req.body; // Assuming paths are provided in req.body
+    // Extract files from multer's req.files
+    const selfie = req.files?.selfie?.[0];
+    const document = req.files?.document?.[0];
 
-    // Run image quality check
-    const qualityResult = await checkImageQuality(selfiePath, documentPath);
+    // Ensure both files are uploaded
+    if (!selfie || !document) {
+      return res.status(400).json({
+        message: "Both selfie and document images are required.",
+      });
+    }
+
+    // Pass the file buffers and metadata to the image quality service
+    const qualityResult = await checkImageQuality(
+      {
+        buffer: selfie.buffer,
+        mimetype: selfie.mimetype,
+        originalname: selfie.originalname,
+      },
+      {
+        buffer: document.buffer,
+        mimetype: document.mimetype,
+        originalname: document.originalname,
+      }
+    );
 
     // If both images meet the quality criteria, proceed to the next step
     if (qualityResult.isAcceptable) {
       next();
     } else {
       // If any image fails the quality check, return an error response
-      return res.status(400).json({
+      res.status(400).json({
         message: "Image quality check failed",
         details: qualityResult.details,
       });
     }
   } catch (error) {
     console.error("Error in image quality middleware:", error.message);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Error checking image quality",
       error: error.message,
     });
