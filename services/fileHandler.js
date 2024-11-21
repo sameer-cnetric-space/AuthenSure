@@ -114,4 +114,18 @@ const saveKycAssets = async (req) => {
   };
 };
 
-module.exports = { upload, saveKycAssets };
+// A utility to delete KYC assets
+const deleteAssets = async (kycId) => {
+  const folderPath = path.join(__dirname, "../public/kycAssets", kycId);
+
+  return new Promise((resolve, reject) => {
+    fs.rm(folderPath, { recursive: true, force: true }, (err) => {
+      if (err) {
+        return reject(new Error("Error deleting KYC assets: " + err.message));
+      }
+      resolve({ message: "KYC assets deleted successfully" });
+    });
+  });
+};
+
+module.exports = { upload, saveKycAssets, deleteAssets };

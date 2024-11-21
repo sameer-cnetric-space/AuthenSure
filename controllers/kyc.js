@@ -3,7 +3,7 @@ const KycService = require("../services/kyc");
 const { buildFileUrl } = require("../utils/buildUrl");
 const ModerationService = require("../services/moderation");
 const fs = require("fs");
-const { saveKycAssets } = require("../services/fileUpload");
+const { saveKycAssets } = require("../services/fileHandler");
 
 class KycController {
   /**
@@ -283,6 +283,29 @@ class KycController {
       console.error("Error in getKycWithModeration controller:", error);
       return res.status(500).json({
         message: "Error fetching KYC entry with moderation",
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * Delete a KYC entry and its assets
+   * @param {Object} req - The request object containing the KYC ID
+   * @param {Object} res - The response object to send the result
+   */
+  static async deleteKycEntry(req, res) {
+    try {
+      const { id } = req.params; // KYC ID from request parameters
+
+      // Call the KycService to delete the KYC entry and its assets
+      const result = await KycService.deleteKycEntry(id);
+
+      return res.status(200).json({
+        message: result.message,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Error deleting KYC entry",
         error: error.message,
       });
     }

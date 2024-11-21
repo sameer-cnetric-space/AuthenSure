@@ -2,7 +2,7 @@ const express = require("express");
 const KycController = require("../controllers/kyc");
 const validate = require("../middlewares/validate");
 const { kycSchema } = require("../validations/kyc");
-const { upload } = require("../services/fileUpload");
+const { upload } = require("../services/fileHandler");
 const userAuth = require("../middlewares/auth/user");
 const { adminAuth } = require("../middlewares/auth/admin");
 const {
@@ -70,5 +70,6 @@ router.post(
 router.put("/:id/status", adminAuth, KycController.updateKycStatus);
 
 //Delete the KYC entry and its assets (For Admins)
+router.delete("/:id", adminAuth, KycController.deleteKycEntry);
 
 module.exports = router;

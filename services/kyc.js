@@ -1,6 +1,7 @@
 const Kyc = require("../models/kyc");
 const Moderation = require("../models/moderation");
 const { buildFileUrl } = require("../utils/buildUrl");
+const { deleteAssets } = require("../services/fileHandler");
 
 class KycService {
   // Fetch all KYC entries with specific fields
@@ -250,6 +251,23 @@ class KycService {
       return formattedKycs;
     } catch (error) {
       throw new Error("Error fetching KYC stats for user: " + error.message);
+    }
+  }
+
+  static async deleteKycEntry(kycId) {
+    try {
+      const kyc = await Kyc.findById(kycId);
+      if (!kyc) throw new Error("No KYC Entry Found");
+
+      // Delete associated assets
+      await deleteAssets(kycId);
+
+      // Remove KYC entry from the database
+      await Kyc.findByIdAndDelete(kycId);
+
+      return { message: "KYC Entry and assets deleted successfully" };
+    } catch (error) {
+      throw new Error("Error deleting KYC entry and assets: " + error.message);
     }
   }
 }
