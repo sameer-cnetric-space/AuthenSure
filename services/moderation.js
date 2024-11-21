@@ -93,4 +93,29 @@ const runModerationChecks = async (
   }
 };
 
-module.exports = { runModerationChecks };
+/**
+ * Delete all moderations associated with a specific KYC ID
+ * @param {String} kycId - The KYC ID for which moderations need to be deleted
+ * @returns {Object} - A confirmation message or error
+ */
+const deleteModerationsByKycId = async (kycId) => {
+  try {
+    const result = await Moderation.deleteMany({ kycId });
+    if (result.deletedCount > 0) {
+      return {
+        message: `Successfully deleted ${result.deletedCount} moderation(s) for KYC ID: ${kycId}`,
+      };
+    } else {
+      return {
+        message: `No moderation entries found for KYC ID: ${kycId}`,
+      };
+    }
+  } catch (error) {
+    console.error("Error deleting moderations:", error.message);
+    throw new Error(
+      "Error deleting moderation entries for the provided KYC ID"
+    );
+  }
+};
+
+module.exports = { runModerationChecks, deleteModerationsByKycId };

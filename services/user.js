@@ -1,5 +1,7 @@
 const AuthService = require("./auth");
 const User = require("../models/user");
+const KycService = require("./kyc");
+const kyc = require("../models/kyc");
 
 class UserService {
   // Get user by ID
@@ -66,6 +68,35 @@ class UserService {
     const tokenExpiry = process.env.JWT_EXPIRES_IN_USER || "1h";
 
     return AuthService.generateToken(user, tokenExpiry);
+  }
+
+  //Delete User and all associated documents and assets
+  static async deleteUser(id) {
+    try {
+      // Fetch the user by ID
+      const user = await UserService.getUserById(id);
+      if (!user) throw new Error("User not found");
+
+      // Fetch all KYC entries associated with the user
+      const kycs = await KycService.getUserKycEntries(user._id);
+
+      if (kycs.kycs.length > 0) {
+        // Delete each KYC entry and its associated assets
+        for (const kyc of kycs.kycs) {
+          console.log(kyc.id);
+          await KycService.deleteKycEntry(kyc.id); // Use KycService to delete KYC and its assets
+        }
+      }
+
+      // Delete the user from the database
+      await User.findByIdAndDelete(id);
+
+      return {
+        message: "User and all associated KYC data deleted successfully",
+      };
+    } catch (error) {
+      throw new Error("Error deleting user: " + error.message);
+    }
   }
 }
 

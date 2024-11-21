@@ -2,6 +2,7 @@ const Kyc = require("../models/kyc");
 const Moderation = require("../models/moderation");
 const { buildFileUrl } = require("../utils/buildUrl");
 const { deleteAssets } = require("../services/fileHandler");
+const { deleteModerationsByKycId } = require("../services/moderation");
 
 class KycService {
   // Fetch all KYC entries with specific fields
@@ -64,10 +65,10 @@ class KycService {
   // Fetch KYC entries for a specific user with pagination
   static async getUserKycEntries(userId, req) {
     try {
-      // Retrieve page, limit, and custom skip from query parameters
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const customSkip = parseInt(req.query.skip) || 0;
+      // Provide default values if `req.query` is not available
+      const page = req?.query?.page ? parseInt(req.query.page) : 1;
+      const limit = req?.query?.limit ? parseInt(req.query.limit) : 10;
+      const customSkip = req?.query?.skip ? parseInt(req.query.skip) : 0;
 
       // Calculate skip
       const skip = customSkip > 0 ? customSkip : (page - 1) * limit;
@@ -81,7 +82,7 @@ class KycService {
       const formattedKycs = kycs.map((kyc) => ({
         id: kyc._id,
         documentType: kyc.idType,
-        selfieImage: buildFileUrl(req, kyc.selfieImage),
+        selfieImage: req ? buildFileUrl(req, kyc.selfieImage) : null, // Handle cases where `req` is not provided
       }));
 
       // Fetch total count of KYC entries for pagination metadata
@@ -261,6 +262,9 @@ class KycService {
 
       // Delete associated assets
       await deleteAssets(kycId);
+
+      //Delete the related moderations
+      await deleteModerationsByKycId(kycId);
 
       // Remove KYC entry from the database
       await Kyc.findByIdAndDelete(kycId);

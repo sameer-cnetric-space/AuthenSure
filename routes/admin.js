@@ -1,5 +1,6 @@
 const express = require("express");
 const AdminController = require("../controllers/admin");
+const UserController = require("../controllers/user");
 const {
   adminRegistrationSchema,
   adminLoginSchema,
@@ -26,5 +27,6 @@ router.post("/login", validate(adminLoginSchema), AdminController.login);
 router.get("/:id", adminAuth, AdminController.getAdminById);
 
 //Delete User and its all data including assets
+router.delete("/users/:id", adminAuth, UserController.deleteUser);
 
 module.exports = router;

@@ -107,6 +107,28 @@ class UserController {
         .json({ message: "Error fetching user data", error: error.message });
     }
   }
+
+  /**
+   * Delete a user and all their associated KYC entries and assets
+   * @param {Object} req - The request object containing the user ID
+   * @param {Object} res - The response object to send the result
+   */
+  static async deleteUser(req, res) {
+    try {
+      const { id } = req.params; // Extract user ID from request parameters
+
+      // Call the deleteUser function from UserService
+      const result = await UserService.deleteUser(id);
+
+      return res.status(200).json(result); // Return success response
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      return res.status(500).json({
+        message: "Error deleting user",
+        error: error.message,
+      });
+    }
+  }
 }
 
 module.exports = UserController;
