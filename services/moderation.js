@@ -100,6 +100,11 @@ const runModerationChecks = async (
  */
 const deleteModerationsByKycId = async (kycId) => {
   try {
+    //check if this kycId have any moderations first
+    const moderation = await Moderation.findOne({ kycId });
+    if (!moderation) {
+      return { message: "No moderations found for this KYC ID" };
+    }
     const result = await Moderation.deleteMany({ kycId });
     if (result.deletedCount > 0) {
       return {

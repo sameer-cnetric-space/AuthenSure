@@ -129,9 +129,9 @@ const compareDocumentByType = (documentType, ocrData, kycData) => {
         kycValue,
         reason: `Mismatch: OCR value (${ocrValue}) does not match KYC value (${kycValue})`,
       };
-      console.log(
-        `Mismatch: OCR value (${ocrValue}) does not match KYC value (${kycValue})`
-      );
+      // console.log(
+      //   `Mismatch: OCR value (${ocrValue}) does not match KYC value (${kycValue})`
+      // );
     }
   });
 

@@ -238,7 +238,7 @@ class KycService {
       // Fetch KYC entries for the user with only relevant fields
       const kycs = await Kyc.find(
         { userId },
-        "_id selfieImage documentImage" // Select only required fields
+        "_id selfieImage documentImage idType kycStatus" // Select only required fields
       );
 
       if (!kycs) throw new Error("No KYC Entries Found");
@@ -246,6 +246,8 @@ class KycService {
       // Map the KYC data to the desired format
       const formattedKycs = kycs.map((kyc) => ({
         kycId: kyc._id,
+        idType: kyc.idType,
+        status: kyc.kycStatus,
         avlAssets: !!(kyc.selfieImage && kyc.documentImage), // Check if both assets are available
       }));
 
