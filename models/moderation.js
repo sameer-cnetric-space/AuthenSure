@@ -68,7 +68,17 @@ const moderationSchema = new mongoose.Schema(
         },
       },
     },
+    errorLogs: {
+      type: [String], // Array to store error messages
+      default: [],
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Failed", "Completed"], // Tracks the moderation process status
+      default: "Pending",
+    },
   },
+
   { timestamps: true }
 );
 

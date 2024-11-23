@@ -35,35 +35,51 @@ const ocrEnv = JSON.parse(process.env.OCR);
  */
 const extractDataFromDocument = async (imagePath) => {
   try {
-    // Create a form for the file upload
     const form = new FormData();
     form.append("image", fs.createReadStream(imagePath));
 
-    // Send a POST request to the RapidAPI OCR service
     const response = await axios.post(ocrEnv.url, form, {
       headers: {
         ...form.getHeaders(),
         "x-rapidapi-host": ocrEnv.rapidHost,
-        "x-rapidapi-key": ocrEnv.rapidApiKey, // Use the key from the parsed environment variable
+        "x-rapidapi-key": ocrEnv.rapidApiKey,
       },
     });
+
+    if (!response || !response.data) {
+      throw new Error("Invalid OCR API response");
+    }
 
     const { data } = response;
 
     if (data.status !== "ok") {
-      throw new Error("OCR extraction failed");
+      throw new Error(`OCR API error: ${data.message || "Unknown error"}`);
     }
 
-    // Map the extracted data to a structured format, depending on the document type
+    if (!data.data || !data.data.ocr) {
+      throw new Error("OCR data is missing in API response");
+    }
+
     const extractedData = data.data.ocr;
-    // Remove 'validState' field if it exists
+
     if (extractedData.hasOwnProperty("validState")) {
       delete extractedData.validState;
     }
 
     return extractedData;
   } catch (error) {
-    console.error("Error extracting data from document:", error.message);
+    console.error("Error extracting data from document:", {
+      message: error.message,
+      stack: error.stack,
+    });
+
+    if (error.response) {
+      console.error("API Error Response:", {
+        status: error.response.status,
+        data: error.response.data,
+      });
+    }
+
     throw new Error("OCR extraction failed");
   }
 };

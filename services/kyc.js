@@ -126,6 +126,8 @@ class KycService {
       if (moderation) {
         formattedModeration = {
           id: moderation._id,
+          status: moderation.status,
+          errorLogs: moderation.errorLogs,
           ocrData: moderation.ocrData, // This includes any OCR data details
           ocrMatch: moderation.ocrMatch, // Indicates if OCR data matched the KYC data
           faceMatch: {
