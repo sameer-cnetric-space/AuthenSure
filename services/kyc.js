@@ -128,8 +128,11 @@ class KycService {
           id: moderation._id,
           status: moderation.status,
           errorLogs: moderation.errorLogs,
-          ocrData: moderation.ocrData, // This includes any OCR data details
-          ocrMatch: moderation.ocrMatch, // Indicates if OCR data matched the KYC data
+          ocr: {
+            ocrData: moderation.ocrData, // This includes any OCR data details
+            ocrMatch: moderation.ocrMatch, // Indicates if OCR data matched the KYC data
+            ocrMismatchDetails: moderation.ocrMismatchDetails,
+          },
           faceMatch: {
             match: moderation.faceMatch.match,
             matchConfidence: moderation.faceMatch.matchConfidence,
