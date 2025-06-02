@@ -1,4 +1,4 @@
-# Universal-KYC: Feature Overview
+# AuthenSure: Feature Overview
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@
 
 ## Introduction
 
-Universal-KYC is a scalable, feature-rich KYC application designed for secure and efficient identity verification. This app utilizes a robust system for handling users, KYC data, image quality checks, and moderation algorithms, with a special focus on admin roles for management and auditing.
+AuthenSure is a scalable, feature-rich KYC application designed for secure and efficient identity verification. This app utilizes a robust system for handling users, KYC data, image quality checks, and moderation algorithms, with a special focus on admin roles for management and auditing.
 
 ## User Management
 
@@ -84,8 +84,8 @@ Universal-KYC is a scalable, feature-rich KYC application designed for secure an
 1. **Clone the Repository**
 
    ```bash
-      git clone https://github.com/sameer-cnetric-space/universal-kyc.git
-      cd universal-kyc
+      git clone https://github.com/sameer-cnetric-space/AuthenSure.git
+      cd AuthenSure
    ```
 
 2. **Build Docker Image**
